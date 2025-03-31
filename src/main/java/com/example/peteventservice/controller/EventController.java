@@ -1,7 +1,7 @@
 package com.example.peteventservice.controller;
 
 import com.example.peteventservice.model.Event;
-import com.example.peteventservice.model.service.EventService;
+import com.example.peteventservice.service.EventService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

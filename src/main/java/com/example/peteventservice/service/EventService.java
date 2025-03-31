@@ -1,4 +1,4 @@
-package com.example.peteventservice.model.service;
+package com.example.peteventservice.service;
 
 import com.example.peteventservice.model.Event;
 import org.springframework.stereotype.Service;
