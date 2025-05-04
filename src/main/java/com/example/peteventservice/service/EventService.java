@@ -19,8 +19,11 @@ import java.util.Optional;
 @Slf4j
 @Service
 public class EventService implements IEventService{
-    @Autowired
-    private IEventRepository eventRepository;
+    private final IEventRepository eventRepository;
+
+    public EventService(IEventRepository eventRepository) {
+        this.eventRepository = eventRepository;
+    }
 
     public List<Event> getEvents() {
         log.debug("Servicio: getEvents()");

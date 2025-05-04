@@ -2,50 +2,59 @@ package com.example.peteventservice.controller;
 
 import com.example.peteventservice.dto.CreateEventRequest;
 import com.example.peteventservice.dto.UpdateEventRequest;
+import com.example.peteventservice.hateoas.EventModelAssembler;
 import com.example.peteventservice.model.Event;
 import com.example.peteventservice.dto.ResponseWrapper;
-import com.example.peteventservice.service.EventService;
 import com.example.peteventservice.service.IEventService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Slf4j
 @RestController
 @RequestMapping("/event")
 public class EventController {
     private final IEventService eventService;
+    private final EventModelAssembler eventModelAssembler;
 
-    public EventController(IEventService eventService) {
+    public EventController(IEventService eventService, EventModelAssembler eventModelAssembler) {
         this.eventService = eventService;
+        this.eventModelAssembler = eventModelAssembler;
     }
 
     @GetMapping
     public ResponseEntity<?> getEvents() {
         log.info("GET /event - Obteniendo todos los eventos");
-        return ResponseEntity.ok(new ResponseWrapper<>(HttpStatus.OK.value(), "OK", eventService.getEvents().size(), eventService.getEvents()));
+        List<EntityModel<Event>> models = eventService.getEvents().stream().map(eventModelAssembler::toModel).collect(Collectors.toList());
+        return ResponseEntity.ok(CollectionModel.of(models, linkTo(methodOn(EventController.class).getEvents()).withSelfRel()));
     }
 
     @GetMapping("/{id}")
-    public Event getEventById(@PathVariable Long id) {
+    public ResponseEntity<?> getEventById(@PathVariable Long id) {
         log.info("GET /event/{} - Obteniendo el evento con id: {}", id);
-        return eventService.getEventById(id);
+        return ResponseEntity.ok(eventModelAssembler.toModel(eventService.getEventById(id)));
     }
 
     @PostMapping
     public ResponseEntity<?> createEvent(@Valid @RequestBody CreateEventRequest event) {
         log.info("POST /event - Creando el evento: {}", event);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseWrapper<>(HttpStatus.CREATED.value(), "Evento creado exitosamente", 1, List.of(eventService.createEvent(event))));
+        return ResponseEntity.status(HttpStatus.CREATED).body(eventModelAssembler.toModel(eventService.createEvent(event)));
     }
 
     @PutMapping
     public ResponseEntity<?> updateEvent(@Valid @RequestBody UpdateEventRequest event) {
         log.info("PUT /event - Actualizando el evento: {}", event.getName());
-        return ResponseEntity.ok(new ResponseWrapper<>(HttpStatus.OK.value(), "Evento actualizado exitosamente", 1, List.of(eventService.updateEvent(event))));
+        return ResponseEntity.ok(eventModelAssembler.toModel(eventService.updateEvent(event)));
     }
 
     @DeleteMapping("/{id}")

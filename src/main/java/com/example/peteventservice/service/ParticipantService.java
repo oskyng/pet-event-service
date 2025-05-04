@@ -8,6 +8,7 @@ import com.example.peteventservice.repository.IEventRepository;
 import com.example.peteventservice.repository.IParticipantRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,7 +25,7 @@ public class ParticipantService implements IParticipantService {
     @Override
     public List<Participant> getParticipants() {
         log.debug("Servicio: getParticipants()");
-        return participantRepository.findAll();
+        return participantRepository.findAll(Sort.by("id").ascending());
     }
 
     @Override
