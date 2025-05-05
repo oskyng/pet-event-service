@@ -45,6 +45,17 @@ public class EventServiceTest {
     }
 
     @Test
+    public void testGetEventById() {
+        Participant participant1 = new Participant(1L, "Oscar", "Sanzana", "19754400-7", "o.sanzana@duocuc.cl", 12345678, "Calle qwerre 123", null);
+        Event event = new Event(1L, "Evento 1", "Es una prueba", LocalDateTime.now(), List.of(participant1));
+
+        when(eventRepository.findById(1L)).thenReturn(Optional.of(event));
+        Event foundEvent = eventService.getEventById(1L);
+        assertEquals("Evento 1", foundEvent.getName());
+        assertEquals("19754400-7", foundEvent.getParticipants().get(0).getRut());
+    }
+
+    @Test
     public void testGetEventByIdDontExist() {
         when(eventRepository.findById(100L)).thenReturn(Optional.empty());
 
